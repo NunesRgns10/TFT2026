@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chamada Digital - 1º D</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f1f5f9;
+            --text: #1e293b;
+            --verde: #22c55e;
+            --vermelho: #ef4444;
+            --azul: #3b82f6;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 850px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        header { border-bottom: 2px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; color: var(--primary); font-size: 1.4rem; }
+        
+        .controls { margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        input[type="date"] { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; outline: none; }
+
+        table { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+        th { text-align: left; padding: 12px; color: #64748b; font-size: 0.9rem; text-transform: uppercase; }
+        td { padding: 12px; background: #fff; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+        td:first-child { border-left: 1px solid #f1f5f9; border-radius: 8px 0 0 8px; font-weight: 500; }
+        td:last-child { border-right: 1px solid #f1f5f9; border-radius: 0 8px 8px 0; text-align: right; }
+
+        .btn-group { display: inline-flex; gap: 5px; }
+        .status-btn { 
+            border: 2px solid #e2e8f0; background: white; padding: 8px 15px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s; color: #94a3b8;
+        }
+
+        .status-btn.p-active { border-color: var(--verde); background: var(--verde); color: white; }
+        .status-btn.f-active { border-color: var(--vermelho); background: var(--vermelho); color: white; }
+        .status-btn.fs-active { border-color: var(--azul); background: var(--azul); color: white; }
+
+        .btn-finalizar { 
+            margin-top: 30px; padding: 18px; background: var(--primary); color: white; 
+            border: none; border-radius: 10px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1.1rem;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.4);
+        }
+        .btn-finalizar:hover { background: #1d4ed8; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>1º Ano D - Chamada</h1>
+        <div class="controls">
+            <input type="date" id="dataAula">
+        </div>
+    </header>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Estudante</th>
+                <th style="text-align: right;">P / F / FS</th>
+            </tr>
+        </thead>
+        <tbody id="listaAlunos"></tbody>
+    </table>
+
+    <button class="btn-finalizar" onclick="gerarRelatorioPDF()">Finalizar e Gerar PDF</button>
+</div>
+
+<script>
+    const { jsPDF } = window.jspdf;
+
+    const alunos = [
+        "1. Alisson Kauê Farias Sousa", "2. Ana Eloa Ribeiro da Silva", "3. Ana Lais Cordeiro Juvenal",
+        "4. Ana Lara Assunção da Silva", "5. Ana Lara Evangelista de Freitas", "6. Ana Leticia Ferosa Freire",
+        "7. Ana Sophia Emiliano Silvestre", "8. Ana Yasmin da Silva Vieira", "9. Andrew Miguel Braz Florencio",
+        "10. Antonia Estela da Silva Lima", "11. Antonio Ezequiel Ciriaco Lopes", "12. Antonio Marcos de Sales Bezerra",
+        "13. Bruna Gabryele Araujo Bezerra", "14. Carlos Davi Freire Andrade", "15. Deborah Evellyn Silva Santos",
+        "16. Fabio Queiroz de Oliveira Rocha", "17. Francisco Icaro Alves de Oliveira", "18. Francisco Rodrigo Alves",
+        "19. Francisco Washington Siqueira Rodrigues", "20. Francisco Yuri Soares Silva", "21. Gabriela Jenice Almeida da Silva",
+        "22. Gustavo Façanha da Silva", "23. Italo Rodrigues da Costa", "24. Iuri de Araujo Monteiro",
+        "25. Jamilly de Lima Alves", "26. Janderson Xavier Araujo", "27. Joao Artur Cirilo de Araujo",
+        "28. Joao Pedro Almeida de Lima", "29. Joao Pedro Moura Silva", "30. Jose Fernando Hugo Santos Bernardo",
+        "31. Kaliane dos Santos da Silva", "32. Kleberson Emanuel Oliveira Ferreira da Silva", "33. Malaquias Cruz Barbosa",
+        "34. Maria Alice Gomes Martins", "35. Maria Angelina Pio de Oliveira", "36. Mateus Coelho de Melo",
+        "37. Matheus Cruz Silvestre", "38. Paulo Vitor Lopes de Sousa", "39. Thabata Maria Assunção Medeiros",
+        "40. Vitoria Agape Lopes de Assunção", "41. Ana Lara Evangelista"
+    ];
+
+    const presencas = {};
+    alunos.forEach((_, i) => presencas[i] = 'P');
+
+    const tbody = document.getElementById('listaAlunos');
+
+    function renderizarTabela() {
+        tbody.innerHTML = '';
+        alunos.forEach((aluno, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${aluno}</td>
+                <td>
+                    <div class="btn-group">
+                        <button class="status-btn ${presencas[index] === 'P' ? 'p-active' : ''}" onclick="marcar(${index}, 'P')">P</button>
+                        <button class="status-btn ${presencas[index] === 'F' ? 'f-active' : ''}" onclick="marcar(${index}, 'F')">F</button>
+                        <button class="status-btn ${presencas[index] === 'FS' ? 'fs-active' : ''}" onclick="marcar(${index}, 'FS')">FS</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function marcar(index, status) {
+        presencas[index] = status;
+        renderizarTabela();
+    }
+
+    document.getElementById('dataAula').valueAsDate = new Date();
+    renderizarTabela();
+
+    function gerarRelatorioPDF() {
+        const doc = new jsPDF();
+        const dataSelecionada = document.getElementById('dataAula').value;
+        const [ano, mes, dia] = dataSelecionada.split('-');
+        const dataFormatada = `${dia}/${mes}/${ano}`;
+
+        const faltosos = [];
+        alunos.forEach((aluno, index) => {
+            const status = presencas[index];
+            if (status === 'F' || status === 'FS') {
+                faltosos.push([aluno, status === 'F' ? 'Falta' : 'FS']);
+            }
+        });
+
+        doc.setFontSize(18);
+        doc.setTextColor(37, 99, 235);
+        doc.text("Relatório de Faltas - 1º Ano D", 14, 20);
+        
+        doc.setFontSize(12);
+        doc.setTextColor(30, 41, 59);
+        doc.text(`Data: ${dataFormatada}`, 14, 30);
+
+        if (faltosos.length > 0) {
+            doc.autoTable({
+                startY: 40,
+                head: [['Aluno', 'Situação']],
+                body: faltosos,
+                headStyles: { fillColor: [239, 68, 68] },
+                theme: 'grid'
+            });
+        } else {
+            doc.text("Nenhuma ausência registrada. Turma completa!", 14, 45);
+        }
+
+        doc.save(`chamada_1D_${dataSelecionada}.pdf`);
+    }
+</script>
+
+</body>
+</html>

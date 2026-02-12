@@ -3,22 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Chamada - Menu</title>
+    <title>Painel de Chamadas</title>
     <style>
-        body { font-family: sans-serif; background: #f1f5f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .menu { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; width: 300px; }
-        h1 { color: #2563eb; font-size: 1.5rem; margin-bottom: 20px; }
-        .btn { display: block; padding: 15px; margin: 10px 0; background: #2563eb; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; transition: 0.2s; }
-        .btn:hover { background: #1d4ed8; transform: scale(1.02); }
+        body { font-family: 'Segoe UI', sans-serif; background: #f1f5f9; display: flex; justify-content: center; padding: 40px 20px; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; max-width: 500px; width: 100%; }
+        h1 { color: #2563eb; margin-bottom: 30px; font-size: 1.8rem; }
+        .grade-title { background: #e2e8f0; padding: 10px; border-radius: 8px; font-weight: bold; margin: 20px 0 10px 0; color: #475569; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn { display: block; padding: 15px; background: #2563eb; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; transition: 0.2s; }
+        .btn:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
     </style>
 </head>
 <body>
-    <div class="menu">
-        <h1>Minhas Turmas</h1>
-        <a href="1anoa.html" class="btn">1º Ano A</a>
-        <a href="3anoa.html" class="btn">3º Ano A</a>
-        <a href="3anob.html" class="btn">3º Ano B</a>
-        <a href="3anoc.html" class="btn">3º Ano C</a>
+    <div class="container">
+        <h1>Diário Digital</h1>
+
+        <div class="grade-title">1º ANO</div>
+        <div class="grid">
+            <a href="1anoa.html" class="btn">Turma A</a>
+            <a href="1anob.html" class="btn">Turma B</a>
+            <a href="1anoc.html" class="btn">Turma C</a>
+            <a href="1anod.html" class="btn">Turma D</a>
+        </div>
+
+        <div class="grade-title">2º ANO</div>
+        <div class="grid">
+            <a href="2anoa.html" class="btn">Turma A</a>
+            <a href="2anob.html" class="btn">Turma B</a>
+            <a href="2anoc.html" class="btn">Turma C</a>
+            <a href="2anod.html" class="btn">Turma D</a>
+        </div>
+
+        <div class="grade-title">3º ANO</div>
+        <div class="grid">
+            <a href="3anoa.html" class="btn">Turma A</a>
+            <a href="3anob.html" class="btn">Turma B</a>
+            <a href="3anoc.html" class="btn">Turma C</a>
+        </div>
     </div>
 </body>
 </html>
