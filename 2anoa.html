@@ -124,40 +124,91 @@
     renderizarTabela();
 
     function gerarRelatorioPDF() {
+        const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
+        
+        // --- LÓGICA UNIVERSAL: Pega o nome da turma direto do título da página ---
+        const nomeTurma = document.querySelector('h1').innerText.replace(' - Chamada', '');
+        
         const dataSelecionada = document.getElementById('dataAula').value;
         const [ano, mes, dia] = dataSelecionada.split('-');
         const dataFormatada = `${dia}/${mes}/${ano}`;
 
         const faltosos = [];
+        const presentes = [];
+
         alunos.forEach((aluno, index) => {
             const status = presencas[index];
             if (status === 'F' || status === 'FS') {
-                faltosos.push([aluno, status === 'F' ? 'Falta' : 'FS']);
+                faltosos.push([aluno, status === 'F' ? 'Falta' : 'Falta S.']);
+            } else {
+                presentes.push([aluno, 'Presente']);
             }
         });
 
-        doc.setFontSize(18);
+        const fontSizeCorpo = 10;
+        const fontSizeSubtitulo = 11;
+
+        // Cabeçalho Principal Dinâmico
+        doc.setFontSize(14);
         doc.setTextColor(37, 99, 235);
-        doc.text("Relatório de Faltas - 2º Ano A", 14, 20);
+        doc.text(`Relatório de Chamada - ${nomeTurma}`, 14, 15);
         
-        doc.setFontSize(12);
+        doc.setFontSize(fontSizeCorpo);
         doc.setTextColor(30, 41, 59);
-        doc.text(`Data: ${dataFormatada}`, 14, 30);
+        doc.text(`Data: ${dataFormatada}`, 14, 22);
+        doc.text(`Total de Alunos na Turma: ${alunos.length}`, 14, 27);
+
+        // --- SEÇÃO 1: AUSÊNCIAS ---
+        doc.setFontSize(fontSizeSubtitulo);
+        doc.setTextColor(239, 68, 68);
+        doc.text(`Ausências (Total: ${faltosos.length})`, 14, 37);
 
         if (faltosos.length > 0) {
             doc.autoTable({
                 startY: 40,
                 head: [['Aluno', 'Situação']],
                 body: faltosos,
-                headStyles: { fillColor: [239, 68, 68] },
+                headStyles: { fillColor: [239, 68, 68], fontSize: fontSizeCorpo },
+                styles: { fontSize: fontSizeCorpo },
                 theme: 'grid'
             });
         } else {
-            doc.text("Nenhuma ausência registrada. Turma completa!", 14, 45);
+            doc.setFontSize(fontSizeCorpo);
+            doc.setTextColor(100);
+            doc.text("Nenhuma ausência registrada.", 14, 45);
         }
 
-        doc.save(`chamada_2A_${dataSelecionada}.pdf`);
+        let finalY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 8 : 50;
+        doc.setDrawColor(220, 220, 220);
+        doc.line(14, finalY, 196, finalY);
+
+        // --- SEÇÃO 2: PRESENÇAS ---
+        doc.setFontSize(fontSizeSubtitulo);
+        doc.setTextColor(34, 197, 94);
+        doc.text(`Alunos Presentes (Total: ${presentes.length})`, 14, finalY + 8);
+
+        if (presentes.length > 0) {
+            doc.autoTable({
+                startY: finalY + 12,
+                head: [['Aluno', 'Situação']],
+                body: presentes,
+                headStyles: { fillColor: [34, 197, 94], fontSize: fontSizeCorpo },
+                styles: { fontSize: fontSizeCorpo },
+                theme: 'grid'
+            });
+        }
+
+        // --- LINHA FINAL DE TOTALIZAÇÃO ---
+        let resumoY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : finalY + 25;
+        doc.setFontSize(fontSizeCorpo);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont(undefined, 'bold');
+        doc.text(`Resumo: ${presentes.length} Presentes | ${faltosos.length} Ausentes | Total: ${alunos.length} Alunos`, 14, resumoY);
+
+        // Nome do arquivo também automático (ex: Chamada_3_Ano_B_2026-02-19.pdf)
+        const nomeArquivo = nomeTurma.replace(/\s+/g, '_');
+        doc.save(`Chamada_${nomeArquivo}_${dataSelecionada}.pdf`);
     }
 </script>
 
